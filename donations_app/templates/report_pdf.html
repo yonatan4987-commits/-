@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דוח כללי</title>
+    <style>
+        body { font-family: Arial; direction: rtl; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+        th { background: #eee; }
+    </style>
+</head>
+<body>
+
+<h2>דוח כללי</h2>
+
+<table>
+    <tr>
+        <th>שם</th>
+        <th>סטטוס</th>
+        <th>מזומן</th>
+        <th>אשראי</th>
+        <th>ביט</th>
+        <th>טלפון</th>
+        <th>סה״כ</th>
+    </tr>
+    {% for r in totals %}
+    <tr>
+        <td>{{ r.name }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.cash }}</td>
+        <td>{{ r.credit }}</td>
+        <td>{{ r.bit }}</td>
+        <td>{{ r.mobile }}</td>
+        <td>{{ r.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

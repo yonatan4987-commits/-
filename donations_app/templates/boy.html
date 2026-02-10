@@ -1,0 +1,244 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4">
+    <i class="bi bi-person-circle"></i>
+    {{ boy.name }}
+</h2>
+
+<p><strong>איפה יצא:</strong> {{ boy.place }}</p>
+
+<form action="/update_place/{{ boy.id }}" method="POST">
+    <label>עדכון מקום יציאה:</label>
+    <input type="text" name="place" value="{{ boy.place }}" placeholder="לדוגמה: באר שבע">
+    <button type="submit">עדכן</button>
+</form>
+
+<hr>
+
+<div class="totals-box">
+    <div class="total-item">
+        <div class="total-label">שיקלול יומי</div>
+        <div class="total-value">{{ daily }} ₪</div>
+    </div>
+
+    <div class="total-item">
+        <div class="total-label">שיקלול כללי</div>
+        <div class="total-value">{{ personal }} ₪</div>
+    </div>
+</div>
+
+<!-- כרטיס מידע -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">פרטי בחור</h5>
+
+        <p><strong>ID:</strong> {{ boy.id }}</p>
+
+        <p>
+            <strong>סטטוס:</strong>
+            {% if boy.status == "נמצא" %}
+                <span class="badge bg-success"><i class="bi bi-check-circle"></i> נמצא</span>
+            {% else %}
+                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> יצא</span>
+            {% endif %}
+        </p>
+
+        <form method="post" action="/update_status/{{ boy.id }}">
+            {% if boy.status == "נמצא" %}
+                <input type="hidden" name="status" value="יצא">
+                <button class="btn btn-danger btn-sm">
+                    <i class="bi bi-door-closed"></i> סמן כ"יצא"
+                </button>
+            {% else %}
+                <input type="hidden" name="status" value="נמצא">
+                <button class="btn btn-success btn-sm">
+                    <i class="bi bi-door-open"></i> סמן כ"נמצא"
+                </button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- תרומות רגילות -->
+<h4><i class="bi bi-cash-stack"></i> תרומות רגילות</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>סכום</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in boy.donations %}
+        <tr>
+            <td>{{ d }}</td>
+            <td>
+                <a href="/edit_donation/{{ boy.id }}/donations/{{ loop.index0 }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="/delete_donation/{{ boy.id }}/donations/{{ loop.index0 }}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- תרומות נייד -->
+<h4 class="mt-4"><i class="bi bi-phone"></i> תרומות נייד</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>סכום</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in boy.mobile_donations %}
+        <tr>
+            <td>{{ d }}</td>
+            <td>
+                <a href="/edit_donation/{{ boy.id }}/mobile_donations/{{ loop.index0 }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="/delete_donation/{{ boy.id }}/mobile_donations/{{ loop.index0 }}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- הוספת תרומה -->
+<h4 class="mt-4"><i class="bi bi-plus-circle"></i> הוסף תרומה</h4>
+
+<form id="donationForm" class="row g-3">
+    <input type="hidden" name="id" value="{{ boy.id }}">
+
+    <div class="col-md-4">
+        <input type="number" id="amountInput" name="amount" class="form-control" placeholder="סכום" required>
+    </div>
+
+    <div class="col-md-4">
+        <select id="methodSelect" name="method" class="form-select">
+            <option value="donations">תרומה רגילה</option>
+            <option value="mobile_donations">תרומה נייד</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <button type="button" class="btn btn-primary w-100" onclick="handleDonation()">
+            <i class="bi bi-plus-circle"></i> הוסף
+        </button>
+    </div>
+</form>
+
+<!-- Modal בחירת אחוז -->
+<div class="modal fade" id="percentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">בחר אחוז לתרומה ניידת</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <button class="btn btn-success w-50 mb-2" onclick="submitMobile(100)">100%</button>
+        <button class="btn btn-warning w-50" onclick="submitMobile(50)">50%</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+
+function showError(msg) {
+    // יצירת הודעה אם לא קיימת
+    let err = document.getElementById("amountError");
+    if (!err) {
+        let div = document.createElement("div");
+        div.id = "amountError";
+        div.className = "alert alert-danger py-1 px-2 small";
+        div.style.display = "none";
+        let parent = document.getElementById("amountInput").parentNode;
+        parent.insertBefore(div, parent.firstChild);
+        err = div;
+    }
+
+    err.innerText = msg;
+    err.style.display = "block";
+
+    setTimeout(() => {
+        err.style.display = "none";
+    }, 2500);
+}
+
+function handleDonation() {
+    let amount = document.getElementById("amountInput").value;
+    let method = document.getElementById("methodSelect").value;
+
+    // ⭐ בדיקת סכום
+    if (!amount || amount <= 0) {
+        showError("נא להזין סכום תקין");
+        return;
+    }
+
+    // ⭐ תרומה רגילה
+    if (method === "donations") {
+        document.getElementById("donationForm").action = "/add_donation";
+        document.getElementById("donationForm").method = "POST";
+        document.getElementById("donationForm").submit();
+        return;
+    }
+
+    // ⭐ תרומה ניידת — בדיקת יום פתוח לפני פתיחת המודאל
+    fetch("/check_day_open")
+        .then(res => res.json())
+        .then(data => {
+            if (!data.open) {
+                showError("אין יום פתוח — אי אפשר להוסיף תרומה ניידת");
+                return;
+            }
+
+            // היום פתוח → פותחים מודאל
+            let modal = new bootstrap.Modal(document.getElementById("percentModal"));
+            modal.show();
+        });
+}
+
+function submitMobile(percent) {
+    let amount = document.getElementById("amountInput").value;
+
+    // בדיקת סכום גם כאן
+    if (!amount || amount <= 0) {
+        showError("נא להזין סכום תקין");
+        return;
+    }
+
+    fetch("/add_mobile_with_percent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: {{ boy.id }},
+            amount: amount,
+            percent: percent
+        })
+    })
+    .then(res => {
+        if (res.status === 400) {
+            showError("אין יום פתוח — אי אפשר להוסיף תרומה ניידת");
+            return;
+        }
+        location.reload();
+    });
+}
+
+</script>
+{% endblock %}

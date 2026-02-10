@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4">
+    <i class="bi bi-calendar-check"></i>
+    דוח יום מספר {{ day_id }}
+</h2>
+
+<!-- ⭐ כפתור ייצוא ל‑Excel ליום זה (תוספת חדשה) -->
+<a href="/excel_day/{{ day_id }}" class="btn btn-success mb-3">
+    <i class="bi bi-file-earmark-excel"></i> ייצוא ל‑Excel ליום זה
+</a>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body text-center">
+        <h4>סה״כ ליום זה: <strong>{{ total }} ₪</strong></h4>
+    </div>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>שם</th>
+            <th>סכום ליום זה</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in report %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td><strong>{{ row.total }} ₪</strong></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/days" class="btn btn-secondary mt-3">
+    <i class="bi bi-arrow-right"></i> חזרה לרשימת הימים
+</a>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4"><i class="bi bi-pencil"></i> עריכת תרומה</h2>
+
+<form method="post" class="card p-4">
+
+    <div class="mb-3">
+        <label class="form-label">סכום חדש</label>
+        <input type="number" name="amount" class="form-control" value="{{ donation.amount }}" required>
+    </div>
+
+    <button class="btn btn-primary">
+        <i class="bi bi-check-circle"></i> שמור
+    </button>
+
+    <a href="/boy/{{ boy.id }}" class="btn btn-secondary">
+        <i class="bi bi-x-circle"></i> ביטול
+    </a>
+
+</form>
+
+{% endblock %}

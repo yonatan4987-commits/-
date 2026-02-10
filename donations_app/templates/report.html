@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4"><i class="bi bi-file-earmark-bar-graph"></i> דוחות עובדים</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>שם</th>
+            <th>סה״כ רגיל</th>
+            <th>סה״כ נייד</th>
+            <th>סה״כ כולל</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for boy in boys %}
+        <tr>
+            <td>{{ boy.name }}</td>
+            <td>
+                {{ boy.donations | sum(attribute='amount'|int) }}
+            </td>
+            <td>
+                {{ boy.mobile_donations | sum(attribute='amount'|int) }}
+            </td>
+            <td>
+                {{
+                    (boy.donations | sum(attribute='amount'|int)) +
+                    (boy.mobile_donations | sum(attribute='amount'|int))
+                }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/pdf" class="btn btn-danger">
+    <i class="bi bi-filetype-pdf"></i> הורד PDF
+</a>
+
+{% endblock %}

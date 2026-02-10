@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4"><i class="bi bi-search"></i> תוצאות חיפוש</h2>
+
+{% if results %}
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>שם</th>
+            <th>סטטוס</th>
+            <th>ניהול</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for boy in results %}
+        <tr>
+            <td>{{ boy.id }}</td>
+            <td>{{ boy.name }}</td>
+            <td>
+                {% if boy.status == "נמצא" %}
+                    <span class="badge bg-success">נמצא</span>
+                {% else %}
+                    <span class="badge bg-danger">יצא</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="/boy/{{ boy.id }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-warning">לא נמצאו תוצאות</div>
+{% endif %}
+
+<a href="/" class="btn btn-dark mt-3"><i class="bi bi-arrow-right"></i> חזרה</a>
+
+{% endblock %}

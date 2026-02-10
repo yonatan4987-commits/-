@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>חיפוש לפי מקום</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+
+<h1>חיפוש בחורים לפי מקום</h1>
+
+<form method="GET" action="/search_place">
+    <input type="text" name="place" placeholder="לדוגמה: בית וגן" required>
+    <button type="submit">חפש</button>
+</form>
+
+{% if place %}
+    <h2>תוצאות עבור: {{ place }}</h2>
+    {% if results %}
+        <ul>
+            {% for boy in results %}
+                <li><a href="/boy/{{ boy.id }}">{{ boy.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>לא נמצאו בחורים במקום זה היום.</p>
+    {% endif %}
+{% endif %}
+
+<br>
+<a href="/">חזרה לרשימה</a>
+
+</div>
+</body>
+</html>

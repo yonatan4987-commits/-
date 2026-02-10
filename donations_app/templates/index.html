@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4"><i class="bi bi-people"></i> רשימת בחורים</h2>
+
+<!-- פתיחת/סגירת יום -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body text-center">
+
+        {% if active_day %}
+            <h4 class="mb-3">יום פעיל: {{ active_day }}</h4>
+
+            <form action="/close_day" method="POST" onsubmit="return askClosePassword()">
+    <input type="hidden" id="close-password" name="password">
+    <button class="btn btn-danger btn-lg">
+        <i class="bi bi-lock-fill"></i> סגור יום
+    </button>
+</form>
+        {% else %}
+            <form action="/open_day" method="POST">
+                <button class="btn btn-success btn-lg">
+                    <i class="bi bi-unlock-fill"></i> פתח יום
+                </button>
+            </form>
+
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- סה״כ יומי + כללי -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">סה״כ יומי</h5>
+                <h2>{{ total_daily }} ₪</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h5 class="card-title">סה״כ כללי</h5>
+                <h2>{{ total_all }} ₪</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="btn-group mb-4" role="group">
+    <a href="/?status=" class="btn btn-secondary">הכול</a>
+    <a href="/?status=נמצא" class="btn btn-success">נמצאים</a>
+    <a href="/?status=יצא" class="btn btn-danger">יצאו</a>
+</div>
+
+<!-- כפתור איפוס עם סיסמה -->
+<form action="/reset" method="POST" onsubmit="return askPassword()">
+    <input type="hidden" id="reset-password" name="password">
+    <button class="btn btn-warning mb-4">איפוס תוכנה</button>
+</form>
+
+<a href="/add_boy" class="btn btn-primary mb-4">הוסף בחור</a>
+
+<a href="/excel" 
+   class="btn mb-4"
+   style="background-color:#4CAF50; color:white; border-radius:8px; padding:10px 25px; font-weight:bold;">
+    ייצוא ל‑Excel
+</a>
+
+<!-- פונקציית בקשת סיסמה -->
+<script>
+function askPassword() {
+    const password = prompt("הכנס סיסמה לאיפוס:");
+
+    if (!password) {
+        return false;
+    }
+
+    document.getElementById("reset-password").value = password;
+
+    return true;
+}
+</script>
+
+<!-- חיפוש -->
+<form action="/search" class="input-group mb-4">
+    <input type="text" name="q" class="form-control" placeholder="חיפוש לפי שם או מקום">
+    <button class="btn btn-dark"><i class="bi bi-search"></i></button>
+</form>
+
+<!-- טבלה -->
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>שם</th>
+            <th>סטטוס</th>
+            <th>פעולות</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for boy in boys %}
+    <tr>
+        <td>{{ boy["id"] }}</td>
+        <td>{{ boy["name"] }}</td>
+        <td>
+            {% if boy["status"] == "נמצא" %}
+                <span class="status-found"><i class="bi bi-check-circle"></i> נמצא</span>
+            {% else %}
+                <span class="status-out"><i class="bi bi-x-circle"></i> יצא</span>
+            {% endif %}
+        </td>
+        <td>
+            <a href="/boy/{{ boy['id'] }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-pencil-square"></i> ניהול
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+<script>
+function askClosePassword() {
+    const pwd = prompt("הכנס סיסמה לסגירת יום:");
+
+    if (!pwd) return false;
+
+    document.getElementById("close-password").value = pwd;
+    return true;
+}
+</script>
+{% endblock %}
